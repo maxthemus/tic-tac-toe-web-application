@@ -96,7 +96,7 @@ app.get("/db/users/username/:username", (req,res) => {
 
 
 app.listen(PORT, () => {
-    console.log("Database server has started! on port 4001");
+    console.log("Database service has started! on port " + PORT);
 });
 
 //Functions
