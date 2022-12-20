@@ -18,10 +18,26 @@ app.post(`${PATH}/login`, (req, res) => {
         axios.get(`${DB_URL}/users/username/${req.body.username}`).then(response => {
             if("validUser" in response.data) {
                 if(response.data.validUser) {
-                    res.send({
-                        message: "You are logged In",
-                        loggedIn:true
-                    });
+                    //Check if usernames and passwords match
+                    if("username" in response.data.userInfo && "password" in response.data.userInfo) {
+                        if(response.data.userInfo.username === req.body.username && response.data.userInfo.password === req.body.password) {
+                            res.send({
+                                message: "You are logged In",
+                                userId: response.data.userInfo.userId,
+                                username: response.data.userInfo.username,
+                                loggedIn:true
+                            });
+                        } else {
+                            res.send({
+                                message:"Incorrect username or password",
+                                loggedIn:false
+                            });
+                        }
+                    } else {
+                        res.send({
+                            message:"Error with internal servers"
+                        });
+                    }
                 } else {
                     res.send({
                         message: "Invalid user",
