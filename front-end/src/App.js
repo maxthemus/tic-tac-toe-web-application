@@ -19,13 +19,19 @@ function App() {
     socket.on('auth-ack', (data) => {
       if("valid" in data) {
         setauth(data.valid);
+
       } else {
         //Throw some sort of error or try to re auth
       }
     });
+
+    socket.on('message', (data) => {
+      console.log(data);
+    });
   
     return () => {
       socket.off("auth-ack");
+      socket.off("message");
     }
   }, [socket]);
   
@@ -44,6 +50,12 @@ function App() {
     });
   }
 
+  const joinQueue = () => {
+    axios.post('http://localhost:4004/game/queue/1').then(res => {
+      console.log(res);
+    });
+  }
+
   
   return (
     <div className="App">
@@ -51,6 +63,7 @@ function App() {
         <button onClick={connectToGameServer}>Connect to server!</button>
         <button onClick={authenticateWithServer}>Authenticate</button>
         <h3> we are auth : {auth ? "true" : "false"}</h3>
+        <button onClick={joinQueue}>Join queue</button>
       </header>
     </div>
   );
