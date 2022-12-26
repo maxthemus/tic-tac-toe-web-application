@@ -1,0 +1,74 @@
+/* styles for all components */
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position:absolute;
+    background-color: black;
+    top: 0;
+
+    width: 100%;
+}
+.nav div {
+    width: 200px;
+}
+.nav__login {
+    
+}
+
+.main__component {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background-color: black;
+    top:50%;
+    left:50%;
+    width: 75%;
+    height: 75%;
+    border-radius: 40px;
+}
+
+
+/* GAME BOARD STYLES */
+.game__main {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.game__info {
+    width: 20%;
+    height: 100%;
+    align-self: flex-start;
+    display: flex;
+    justify-content: center;
+    
+}
+.game__board {
+}
+.board__tile {
+    width: 10vw;
+    height: 10vw;
+}
+
+/* Login */
+.main__login, .main__signup {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.main__login input, .main__signup input {
+    height: 10%;
+    width: 30%;
+}
+
