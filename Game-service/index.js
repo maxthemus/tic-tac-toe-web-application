@@ -93,7 +93,7 @@ io.on("connection", (socket) => {
                 //Now we need to send the update to the room
                 io.to(`ROOM-${data.id}`).emit("game-update", data);
             } else {
-                if(winnerCheck === ' ') {
+                if(winnerCheck === '-') {
                     data.winner = false;
                 } else {
                     data.winner = true;
@@ -146,7 +146,7 @@ function joinQueue(userId) {
 function createGame() {
     let gameObject = {
         id: gameId++,
-        board: [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        board: ['-', '-', '-', '-', '-', '-', '-', '-', '-'],
         players: [], //Empty if un initialized
         currentTurn:-1, //If -1 then game is un initialized
         turnNum: 0
@@ -193,7 +193,7 @@ function checkWin(gameObject) {
     for(let i = 0; i < 9; i+3) { //Horizontal loop
         console.log(i);//Just for debugging purposes!
         if(gameObject.board[i] === gameObject.board[i+1] && gameObject.board[i+1] === gameObject.board[i+2]) {
-            if(gameObject.board[i] !== ' ') {
+            if(gameObject.board[i] !== '-') {
                 winner = gameObject.board[i];
             }
         }
@@ -201,7 +201,7 @@ function checkWin(gameObject) {
 
     for(let i = 0; i < 3; i++) { //Vertical loop
         if(gameObject.board[i] === gameObject.board[i+3] && gameObject.board[i+3] === gameObject.board[i+6]) {
-            if(gameObject.board[i] !== ' ') {
+            if(gameObject.board[i] !== '-') {
                 winner = gameObject.board[i];
             }
         }
@@ -209,14 +209,14 @@ function checkWin(gameObject) {
 
     //Diagonal botL -> topR
     if(gameObject.board[2] === gameObject.board[4] && gameObject.board[4] === gameObject.board[7]) {
-        if(gameObject.board[i] !== ' ') {
+        if(gameObject.board[i] !== '-') {
             winner = gameObject.board[2];
         }
     }
 
     //Diagonal topL -> botR
     if(gameObject.board[0] === gameObject.board[4] && gameObject.board[4] === gameObject.board[8]) {
-        if(gameObject.board[i] !== ' ') {
+        if(gameObject.board[i] !== '-') {
             winner = gameObject.board[0];
         }
     }
