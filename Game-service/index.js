@@ -22,10 +22,10 @@ const io = require("socket.io")(http, {
 
 
 //End points
-app.post(`${PATH}/queue/:userId`, (req, res) => {
+app.post(`${PATH}/queue/:userId`, (req, res) => {    
     //First we need to check if user is connect via a socket
-    if(users.has(req.params.userId)) {
-        let joinedQueue = joinQueue(req.params.userId); 
+    if(users.has(parseInt(req.params.userId))) {
+        let joinedQueue = joinQueue(parseInt(req.params.userId)); 
     
         if(joinedQueue) {
             io.to(users.get(parseInt(req.params.userId))).emit("join-queue", {message:"you have joined queue"});
@@ -56,9 +56,9 @@ app.post(`${PATH}/queue/:userId`, (req, res) => {
 
 //Socket io
 io.on("connection", (socket) => {
+    console.log("Socket Connected!");
 
     socket.on("authenticate", (data) => {
-        console.log("Got auth");
         //Take userId from data and map the userId to the socket in the users map
         if("userId" in data) {
             users.set(data.userId, socket); //Mapping the userId to the socket
@@ -69,6 +69,8 @@ io.on("connection", (socket) => {
             //Invalid payload and need to handle ERROR
             io.to(socket.id).emit("auth-ack", { valid: false});
         }
+
+        console.log(users);
     });
 
 
@@ -77,6 +79,7 @@ io.on("connection", (socket) => {
         if(users.get(data.currentTurn).id === socket.id) {
             //It is a valid update to the game
             console.log("Valid update!");
+            data.turnNum++; //Inc turn num
 
             //We need to check if the game is over
             let winnerCheck = checkWin(data);
@@ -93,17 +96,20 @@ io.on("connection", (socket) => {
                 //Now we need to send the update to the room
                 io.to(`ROOM-${data.id}`).emit("game-update", data);
             } else {
+                console.log(`WINNER CHECK === ${winnerCheck}`);
+
                 if(winnerCheck === '-') {
                     data.winner = false;
                 } else {
                     data.winner = true;
-                    if(winner === 'X') {
+                    if(winnerCheck === 'X') {
                         data.winnerId = data.players[0]
-                    } else {
-                        datalwinnerId = data.players[1];
+                    } else if (winnerCheck === 'O') {
+                        data.winnerId = data.players[1];
                     }
                 }
 
+                
 
                 io.to(`ROOM-${data.id}`).emit("game-over", data);
             }
@@ -157,12 +163,13 @@ function createGame() {
 
 //Every time someone joins the queue this function will be called
 function gameQueueHandler () {
-    console.log("called!");
+    console.log("Queue handler invoked!");
+    console.log(`Queue = ${gameQueue}`);
     //We want to loop while players in queue is greater then 2
     while(gameQueue.length >= 2) {
         //We want to pop two players of the queue
-        let userOne = gameQueue.pop();
-        let userTwo = gameQueue.pop();
+        let userOne = parseInt(gameQueue.pop());
+        let userTwo = parseInt(gameQueue.pop());
         
         let gameObject = createGame();
         //Now we want to fill the game object
@@ -188,10 +195,11 @@ function gameQueueHandler () {
 
 //Function to check if game has a winner or if it is over
 function checkWin(gameObject) {
+    console.log("Checking for winner!");
+
     let winner = null;
     //Now we want to loop through the game 
-    for(let i = 0; i < 9; i+3) { //Horizontal loop
-        console.log(i);//Just for debugging purposes!
+    for(let i = 0; i < 9; i+=3) { //Horizontal loop
         if(gameObject.board[i] === gameObject.board[i+1] && gameObject.board[i+1] === gameObject.board[i+2]) {
             if(gameObject.board[i] !== '-') {
                 winner = gameObject.board[i];
@@ -209,21 +217,21 @@ function checkWin(gameObject) {
 
     //Diagonal botL -> topR
     if(gameObject.board[2] === gameObject.board[4] && gameObject.board[4] === gameObject.board[7]) {
-        if(gameObject.board[i] !== '-') {
+        if(gameObject.board[2] !== '-') {
             winner = gameObject.board[2];
         }
     }
 
     //Diagonal topL -> botR
     if(gameObject.board[0] === gameObject.board[4] && gameObject.board[4] === gameObject.board[8]) {
-        if(gameObject.board[i] !== '-') {
+        if(gameObject.board[0] !== '-') {
             winner = gameObject.board[0];
         }
     }
 
-    if(winner === null && turnNum >= 9) {
+    if(winner === null && gameObject.turnNum >= 9) {
         //There is no winner and game is tie
-        return " "; //Empty has won
+        return "-"; //Empty has won
     }
     return winner; //Else we return the game winner
 }

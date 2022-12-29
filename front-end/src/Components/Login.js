@@ -7,8 +7,14 @@ function Login(props) {
     
     const handleLogin = () => {
         if(usernameInput.length !== "" && passwordInput.length !== "") {
-            props.loginFunc(usernameInput, passwordInput);
+            props.loginFunc(usernameInput, passwordInput, loginData);
         }   
+    }
+
+    const loginData = (data) => {
+        if(data.loggedIn) {
+            props.screenChanger("main");
+        }
     }
 
     return (

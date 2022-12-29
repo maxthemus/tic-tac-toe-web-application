@@ -19,7 +19,7 @@
     width: 200px;
 }
 .nav__login {
-    
+    display: flex;
 }
 
 .main__component {
@@ -72,3 +72,22 @@
     width: 30%;
 }
 
+
+/* Game Over popup */
+.game__popup {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 70%;
+    background-color: rgba(128,128,128, 0.3);
+    border-radius: 20px;
+}
+.popup__title {
+    margin-top: 2%;
+    font-size: 5vh;
+}

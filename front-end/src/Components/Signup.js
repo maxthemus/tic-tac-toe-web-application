@@ -18,12 +18,12 @@ function Signup(props) {
             <h3>Sign up</h3>
             <div className="main__signup">
                 <h3>Username</h3>
-                <input onChange={setusernameInput} />
+                <input onChange={(e) => setusernameInput(e.target.value)} />
                 <h3>Password</h3>
-                <input onChange={setpasswordInput} /> 
+                <input onChange={(e) => setpasswordInput(e.target.value)} /> 
                 <h3>Re-type password</h3>
-                <input onChange={setpasswordMatch} />
-                <button onClick={handleSignup}>Sign up</button>
+                <input onChange={(e) => setpasswordMatch(e.target.value)} />
+                <button onClick={() => handleSignup()}>Sign up</button>
             </div>
         </div>
     );
