@@ -47,9 +47,10 @@ app.post("/db/users/create", (req,res) => {
 });
 
 app.get("/db/users/userId/:id", (req,res) => {
+    console.log(users);
     let userExists = -1;
     for(let i in users) {
-        if(users[i].userId === req.params.id) {
+        if(parseInt(users[i].userId) === parseInt(req.params.id)) {
             userExists = i;
             break;
         }

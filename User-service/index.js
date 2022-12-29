@@ -6,8 +6,11 @@ const DB_URL = "http://localhost:4001/db";
 //Imports
 const express = require("express");
 const axios = require("axios");
+const cors = require("cors");
+const e = require("express");
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 
@@ -110,8 +113,31 @@ app.post(`${PATH}/signup`, (req, res) => {
     }
 });
 
-app.get(`${PATH}/data/:userId`, (req, res) => {
-    res.send("Need to implement get user data");
+app.get(`${PATH}/data/username/:id`, (req, res) => {
+    axios.get(`${DB_URL}/users/userId/${req.params.id}`).then(payload => {
+        let data = payload.data;
+        console.log(data);
+
+       if("validUser" in data) {
+        if(data.validUser) {
+            res.send({
+                message: "Valid user",
+                validUser: data.validUser,
+                userId: data.userInfo.id,
+                username: data.userInfo.username
+            });
+        } else {
+            res.send({
+                message: "Invalid user",
+                validUser: data.validUser
+            });
+        }
+       } else {
+        res.send({
+            message: "Internal server error",
+        });
+       }
+    });
 });
 
 //Starting server

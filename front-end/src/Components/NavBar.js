@@ -6,7 +6,6 @@ import "./component.css";
 function NavBar(props) {
 
     const handleButton = (button) => {
-        console.log("TESTING");
         props.screenChanger(button);
     }
 
@@ -15,7 +14,10 @@ function NavBar(props) {
         <div></div>
         <button onClick={() => handleButton("main")}><h1>Tic Tac Toe</h1></button>
         { props.loggedIn ?
-            <></> : 
+            <div className="nav__login">
+                <h5>{props.username}</h5>
+                <button>Logout</button>
+            </div> : 
             <div className="nav__login">
                 <button onClick={() =>handleButton("login")}>Login</button>
                 <button onClick={() =>handleButton("signup")}>Signup</button>

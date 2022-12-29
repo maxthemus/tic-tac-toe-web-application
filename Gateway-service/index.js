@@ -9,8 +9,10 @@ const express = require("express");
 const axios = require("axios");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const cors = require("cors");
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use(session({
     secret:"KEY",
@@ -79,6 +81,12 @@ app.post(`${PATH}/user/signup`, (req, res) => {
             userCreated:false
         });
     }
+});
+
+app.get(`${PATH}/user/data/username/:id`, (req, res) => {    
+    axios.get(`${USER_URL}/data/username/${req.params.id}`).then(data => {
+        res.send(data.data);
+    });
 });
 /** USER end */
 
