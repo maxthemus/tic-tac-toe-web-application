@@ -1,4 +1,4 @@
-import React from "react";
+ import React from "react";
 
 function Game(props) {
 
@@ -30,12 +30,40 @@ function Game(props) {
         return `(${props.myCharacter}) ...`
     }
 
+    const styleForNames = (player) => {
+        if(player === "ME") {
+            if(props.myTurn) {
+                return { fontWeight: 'bold', color:'red'};
+            } else {
+                return { fontWeight: '400'};
+            }
+        } else {
+            if(props.myTurn) {
+                return { fontWeight: '400'};
+            } else {
+                
+                return { fontWeight: 'bold',  color:'red'};
+            }
+        }
+    }
+
+    const gameState = () => {
+        if(props.inGame) {
+            
+            return "In Game";
+        } else if(props.gameOver) {
+            return "Game Over";
+        } else {
+            return "In Queue";
+        }
+    }
+
     return (
         <div className="main__component">
-            <h3>{props.inGame ? "in game" : "in queue"}</h3>
+            <h3>{gameState()}</h3>
             <div className="game__main">
                 <div className="game__info">
-                    <h3>user 1 ({props.myCharacter})</h3>
+                    <h3 style={styleForNames("ME")}>{props.username} ({props.myCharacter})</h3>
                 </div>
                 <div className="game__board">
                     <div className="board___row">
@@ -55,7 +83,7 @@ function Game(props) {
                     </div>
                 </div>
                 <div className="game__info">
-                    <h3>{otherPlayerInfo()}</h3>
+                    <h3 style={styleForNames("OTHER")}>{otherPlayerInfo()}</h3>
                 </div>
             </div>
             

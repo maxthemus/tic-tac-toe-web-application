@@ -2,7 +2,9 @@
 const PORT = 4000;
 const PATH = "/api";
 const USER_URL = "http://localhost:4002/user";
+const GAME_URL = "http://localhost:4004/game";
 const cookieAge = 1000 * 60 * 60 * 24;
+
 
 //Imports
 const express = require("express");
@@ -33,16 +35,26 @@ app.post(`${PATH}/user/login`, (req, res) => {
         }).then(response => {
             if("loggedIn" in response.data) {
                 if(response.data.loggedIn) {
-                    //creating user session
-                    req.session.userId = response.data.userId;
-                    req.session.username = response.data.username;
+                    //Now we want to check to see if the user has a socket connected already
+                    axios.get(`${GAME_URL}/user/${response.data.userId}`).then(payload => {
+                        if(!payload.data.userConnected) {
+                            //creating user session
+                            req.session.userId = response.data.userId;
+                            req.session.username = response.data.username;
 
-                    res.send({
-                        message:"Logged in",
-                        userId: req.session.userId,
-                        username: req.session.username,
-                        loggedIn:true
-                    });
+                            res.send({
+                                message:"Logged in",
+                                userId: req.session.userId,
+                                username: req.session.username,
+                                loggedIn:true
+                            });
+                        } else {
+                            res.send({
+                                message:"User already logged in",
+                                loggedIn:false
+                            });
+                        }
+                    }); 
                 } else {
                     res.send({
                         message:response.data.message,

@@ -2,6 +2,7 @@
 const PORT = 4004;
 const PATH = "/game";
 let users = new Map(); // Will map user id to the user socket
+let usersToGameId = new Map(); //Will map userId to the game id
 let games = new Map(); // Will map game id to game objects
 let gameQueue = [];
 let gameId = 1;
@@ -22,6 +23,20 @@ const io = require("socket.io")(http, {
 
 
 //End points
+app.get(`${PATH}/user/:userId`, (req, res) => {
+    if(users.has(parseInt(req.params.userId))) {
+        res.send({
+            message: "User has connected socket",
+            userConnected: true
+        });
+    } else {
+        res.send({
+            message:"User isn't connected by socket",
+            userConnected: false
+        });
+    }
+});
+
 app.post(`${PATH}/queue/:userId`, (req, res) => {    
     //First we need to check if user is connect via a socket
     if(users.has(parseInt(req.params.userId))) {
@@ -69,8 +84,6 @@ io.on("connection", (socket) => {
             //Invalid payload and need to handle ERROR
             io.to(socket.id).emit("auth-ack", { valid: false});
         }
-
-        console.log(users);
     });
 
 
@@ -109,16 +122,66 @@ io.on("connection", (socket) => {
                     }
                 }
 
-                
-
                 io.to(`ROOM-${data.id}`).emit("game-over", data);
+
+                //Remove the userId map to gameId
+                usersToGameId.delete(data.players[0]);
+                usersToGameId.delete(data.players[1]);
+
+                //Now we can delete the game state
+                games.delete(data.id);
             }
         } else {
             //Not valid update to game
             console.log("Invalid update!");
         }
 
-    })
+    });
+
+    //For handling disconnect
+    socket.on("disconnect", (data) => {
+        console.log("User disconnected!");
+        let userId = null;
+
+        //Search for user id
+        for(let [key, value] of users.entries()) {
+            if(value === socket) {
+                userId = key;
+                break;
+            }
+        }
+
+        console.log(`USER ID === ${userId}`);
+
+        if(userId !== null) {
+            //Will search for userId in the queue
+            for(i in gameQueue) {
+                if(gameQueue[i] === userId) {
+                    gameQueue.splice(i, 1);
+                    return;
+                }
+            }
+
+            //Will search for it player is in a game
+            if(usersToGameId.has(userId)) {
+                //User is in a game
+                let userGame = usersToGameId.get(userId);
+                let game = games.get(userGame);
+                //Now we want to send a game over message to the other playing say that they won
+                game.winner = true;
+                game.winnerId = (parseInt(game.players[0]) === parseInt(userId) ? game.players[1] : game.players[0]);
+                io.to(`ROOM-${game.id}`).emit("game-over", game);
+
+                //Remove the userId map to gameId
+                usersToGameId.delete(game.players[0]);
+                usersToGameId.delete(game.players[1]);
+
+                //Now we can delete the game state
+                games.delete(game.id);
+            }     
+        }
+        users.delete(userId); //Deleting user 
+    });
 });
 
 //Starting server
@@ -184,6 +247,10 @@ function gameQueueHandler () {
         let roomName = `ROOM-${gameObject.id}`;
         userSocketOne.join(roomName);
         userSocketTwo.join(roomName);
+
+        //Mapping user id to game Id
+        usersToGameId.set(userOne, gameObject.id);
+        usersToGameId.set(userTwo, gameObject.id);
 
         //Now we want to send a broadcast to room
         io.to(roomName).emit("game-start", gameObject);
