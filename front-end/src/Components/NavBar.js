@@ -16,7 +16,7 @@ function NavBar(props) {
         { props.loggedIn ?
             <div className="nav__login">
                 <h5>{props.username}</h5>
-                <button>Logout</button>
+                <button onClick={() => props.logoutFunc()}>Logout</button>
             </div> : 
             <div className="nav__login">
                 <button onClick={() =>handleButton("login")}>Login</button>

@@ -13,7 +13,6 @@ import Signup from './Components/Signup';
 
 //Run time var
 const gateWayLink = "http://localhost:4000/api";
-
 const game_service ="http://localhost:4004/";
 const socket = io(game_service, {
   autoConnect: false, //if false need to open socket connection using socket.connect();
@@ -169,9 +168,6 @@ function App() {
   }
 
   const makeTurn = (index) => {
-    console.log("Making turn");
-    console.log(myTurn);
-
     if(gameState !== null && myTurn) {
       if(gameState.board[index] === "-") {
         setMyTurn(false);
@@ -191,7 +187,7 @@ function App() {
     }
   }
 
-  //Functions for handling login
+  //Function for handling login
   const loginUser = (username, password, _callback) => {
     axios.post(`${gateWayLink}/user/login`, {
       username:username,
@@ -214,6 +210,25 @@ function App() {
       _callback(data);
     });
   }
+  //Function for handling user logout
+  const logoutUser = () => {
+    console.log("Logging Out");
+
+    setLoggedIn(false);
+    setinQueue(false);
+
+    //We will want to reset user data
+    setUsername("");
+    setauth(false); 
+    //reset game state
+    resetGameState();
+    
+    //Change back to main menu
+    screenChange("main");
+
+    //Now we want to disconnect userInfo
+    socket.disconnect();
+  }
 
   const signUpUser = (username, password) => {
     axios.post(`${gateWayLink}/user/signup`, {
@@ -227,7 +242,7 @@ function App() {
   const renderMain = () => {
     switch(screen) {
       case "game":
-        return(<Game otherUsername={otherUsername} myCharacter={myCharacter} turnMaker={makeTurn} board={gameState.board} inGame={inGame} gameOverInfo={winnerInfo} gameState={gameState}/>);
+        return(<Game username={username} otherUsername={otherUsername} myCharacter={myCharacter} myTurn={myTurn} turnMaker={makeTurn} board={gameState.board} inGame={inGame} gameOver={inGameOver} gameOverInfo={winnerInfo} gameState={gameState}/>);
         break;
       case "login":
         return(<Login loginFunc={loginUser} screenChanger={screenChange}/>);
@@ -278,7 +293,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <NavBar screenChanger={screenChange} loggedIn={loggedIn} username={username} />
+        <NavBar logoutFunc={logoutUser} screenChanger={screenChange} loggedIn={loggedIn} username={username} />
         
         {renderMain()}
       </header>
